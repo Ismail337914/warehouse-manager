@@ -1,0 +1,95 @@
+# Checks every push and pull request, so a change (yours or a collaborator's) is tested before it reaches main.
+# 1. checks:   typecheck, lint, unit tests, production build (fast, no database).
+# 2. database: a local Supabase stack in Docker on the runner, then the database tests and the browser tests.
+# Nothing here touches the cloud project; the stack lives only for the duration of the job.
+name: CI
+
+on:
+  push:
+    branches: [main, feature/**]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The jobs only read the code: the token GitHub hands them can't push, comment or change settings.
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Placeholders: the build never calls Supabase, but the app reads these names.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+    steps:
+      # persist-credentials: false keeps the GitHub token out of .git/config while npm runs install scripts.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      # Node 24 (LTS, npm 11). @emnapi/core and @emnapi/runtime are pinned in devDependencies on purpose: they are
+      # dependencies of other platforms' optional wasm builds (sharp, Tailwind), and some npm versions (e.g. 11.6)
+      # leave them out of package-lock.json, after which `npm ci` here fails with "Missing … from lock file".
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  database:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Start local Supabase (migrations + seed)
+        run: npx supabase start
+
+      - name: Write .env.local from the local stack
+        run: |
+          eval "$(npx supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${PUBLISHABLE_KEY:-$ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY:-$SECRET_KEY}"
+          } > .env.local
+
+      - name: Database tests
+        run: npm run test:db
+
+      # e2e/global-setup.ts waits until Auth and PostgREST answer again after the reset.
+      - name: Fresh data for the browser tests
+        run: npx supabase db reset
+
+      # The tests use the installed Google Chrome (channel "chrome"); --force also when the runner already has it.
+      - name: Install Google Chrome for Playwright
+        run: npx playwright install --with-deps --force chrome
+
+      - name: Browser tests
+        run: npm run test:e2e
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

@@ -1,0 +1,314 @@
+@import "tailwindcss";
+
+:root {
+  --background: #080c09;
+  --foreground: #e8f3ea;
+  --surface: #111812;
+  --surface-raised: #151f18;
+  --surface-muted: #0d140f;
+  --border: #293a2d;
+  --border-subtle: #1c2a20;
+  --text-strong: #e8f3ea;
+  --text-primary: #d3e2d6;
+  --text-muted: #a0b2a4;
+  --text-subtle: #788b7d;
+  --accent: #b7f4c7;
+  --accent-hover: #9de7b1;
+  --accent-strong: #68d88a;
+  --accent-ink: #08110a;
+  --app-background-gradient:
+    radial-gradient(ellipse at 50% 112%, rgb(183 244 199 / 40%), transparent 48%),
+    linear-gradient(180deg, #070a08 0%, #0a110c 30%, #122219 60%, #23432d 100%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  background-image: var(--app-background-gradient);
+  background-attachment: fixed;
+  color: var(--foreground);
+}
+
+/* Keep the existing utility-based UI, while sharing one dark warehouse palette app-wide. */
+@media screen {
+.auth-backdrop {
+  isolation: isolate;
+  background-color: #070a08;
+  background-image: var(--app-background-gradient);
+  background-attachment: fixed;
+}
+
+.auth-backdrop::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 38%, rgb(104 216 138 / 8%) 72%, rgb(183 244 199 / 12%));
+  content: "";
+  pointer-events: none;
+}
+
+.auth-card {
+  border-color: rgb(183 244 199 / 18%);
+  background: linear-gradient(145deg, rgb(17 24 18 / 94%), rgb(9 15 11 / 91%));
+  box-shadow: 0 24px 80px rgb(0 0 0 / 28%), 0 1px 0 rgb(183 244 199 / 8%) inset;
+  backdrop-filter: blur(18px);
+}
+
+.auth-brand-mark {
+  box-shadow: 0 0 28px rgb(183 244 199 / 24%);
+}
+
+.module-tab-list {
+  scrollbar-width: none;
+}
+
+.module-tab-list::-webkit-scrollbar {
+  display: none;
+  height: 0;
+}
+
+.bg-white {
+  background-color: var(--surface);
+  background-image: linear-gradient(145deg, rgb(21 31 24 / 78%), rgb(14 21 16 / 92%));
+}
+
+.bg-white.auth-card {
+  border-color: rgb(183 244 199 / 18%);
+  background-image: linear-gradient(145deg, rgb(21 31 24 / 94%), rgb(9 15 11 / 96%));
+}
+
+.bg-white\/80 {
+  background-color: rgb(8 12 9 / 88%);
+}
+
+.app-header {
+  background-color: #080c09;
+  background-image: var(--app-background-gradient);
+  background-attachment: fixed;
+}
+
+.bg-slate-50 {
+  background-color: var(--surface-muted);
+  background-image: linear-gradient(135deg, rgb(20 32 23 / 70%), rgb(12 19 14 / 82%));
+}
+
+.bg-slate-50\/40 {
+  background-color: rgb(13 20 15 / 40%);
+}
+
+.bg-slate-50\/50 {
+  background-color: rgb(13 20 15 / 50%);
+}
+
+.bg-slate-50\/60 {
+  background-color: rgb(13 20 15 / 60%);
+}
+
+.bg-slate-50\/70 {
+  background-color: rgb(13 20 15 / 70%);
+}
+
+.bg-slate-100 {
+  background-color: #121b15;
+  background-image: linear-gradient(145deg, #101710, #0a100c);
+}
+
+.bg-slate-200 {
+  background-color: #1b2920;
+}
+
+.bg-slate-800 {
+  background-color: #26372b;
+}
+
+.bg-slate-900,
+.bg-slate-950 {
+  background-color: #080c09;
+}
+
+.app-sidebar {
+  background-color: #080c09;
+  background-image: var(--app-background-gradient);
+  background-attachment: fixed;
+}
+
+.bg-emerald-50 {
+  background-color: #14281a;
+}
+
+.bg-emerald-100 {
+  background-color: #1b3623;
+}
+
+.bg-emerald-200 {
+  background-color: #31593b;
+}
+
+.bg-emerald-300 {
+  background-color: var(--accent);
+}
+
+.bg-emerald-300.text-slate-950 {
+  color: var(--accent-ink);
+}
+
+.hover\:bg-emerald-200:hover {
+  background-color: var(--accent-hover);
+}
+
+.bg-emerald-500 {
+  background-color: #4fc675;
+}
+
+.bg-emerald-600 {
+  background-color: #39a85e;
+}
+
+.hover\:bg-slate-50:hover {
+  background-color: var(--surface-muted);
+}
+
+.hover\:bg-slate-100:hover {
+  background-color: #19251c;
+}
+
+.hover\:bg-slate-200:hover {
+  background-color: #25372a;
+}
+
+.hover\:bg-slate-800:hover {
+  background-color: #314637;
+}
+
+.hover\:bg-slate-900:hover {
+  background-color: #111a13;
+}
+
+.text-slate-950,
+.text-slate-900 {
+  color: var(--text-strong);
+}
+
+.text-slate-800,
+.text-slate-700 {
+  color: var(--text-primary);
+}
+
+.text-slate-600,
+.text-slate-500 {
+  color: var(--text-muted);
+}
+
+.text-slate-400,
+.text-slate-300 {
+  color: var(--text-subtle);
+}
+
+.text-slate-200 {
+  color: #c9d8cd;
+}
+
+.text-slate-100 {
+  color: #e8f3ea;
+}
+
+.text-emerald-950,
+.text-emerald-900,
+.text-emerald-800,
+.text-emerald-700,
+.text-emerald-600 {
+  color: #a9edb9;
+}
+
+.border-slate-100 {
+  border-color: var(--border-subtle);
+}
+
+.border-slate-200 {
+  border-color: var(--border);
+}
+
+.border-slate-300 {
+  border-color: #364b3b;
+}
+
+.border-emerald-200 {
+  border-color: #31593b;
+}
+
+.ring-slate-200 {
+  --tw-ring-color: #293a2d;
+}
+
+.placeholder\:text-slate-400::placeholder {
+  color: var(--text-subtle);
+}
+
+::selection {
+  background: #31593b;
+  color: #f5fff7;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-muted);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid var(--surface-muted);
+  border-radius: 999px;
+  background: #314437;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4d6853;
+}
+}
+
+@media print {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background: #fff;
+    background-image: none;
+    color: #000;
+  }
+
+  .auth-backdrop {
+    background: #fff;
+    background-image: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
